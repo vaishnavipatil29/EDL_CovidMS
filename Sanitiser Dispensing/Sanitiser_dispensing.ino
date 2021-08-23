@@ -1,14 +1,22 @@
-#define echoPin 2
-#define trigPin 3
+#define echoPin 8
+#define trigPin 9
 
 long duration;
 int distance;
 
 // Include the Servo library 
 #include <Servo.h> 
+// include the library code:
+#include <LiquidCrystal.h>
 // Declare the Servo pin 
 int servoPin = 7; 
 // Create a servo object 
+
+// initialize the library by associating any needed LCD interface pin
+// with the arduino pin number it is connected to
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
 Servo Servo1; 
 
 void setup(){
@@ -16,11 +24,15 @@ void setup(){
   pinMode(trigPin,OUTPUT);
   pinMode(echoPin,INPUT);
   Servo1.attach(servoPin);
+  lcd.begin(16, 2);
+  lcd.print("SANITISER DISPENSOR");
  }
  
 void loop(){
 
   Serial.println("Place your Hand");
+  lcd.setCursor(0, 1);
+  lcd.print("Place your Hand");
   
   // trigger sent
   digitalWrite(trigPin,LOW);
@@ -39,6 +51,8 @@ void loop(){
   //if distance is less than 10cm 
    if (distance < 10)
    {
+    lcd.setCursor(0, 1);
+    lcd.print("HAND DETECTED");
     delay(1000);
     Serial.println("Hand Detected");
     // Make servo go to 0 degrees 
@@ -54,6 +68,8 @@ void loop(){
    Servo1.write(0); 
    Serial.println("ZERO Degree");
    delay(1000); 
+   lcd.setCursor(0, 1);
+    lcd.print("DISPENSED!");
    }
 
   delay(1000);   
