@@ -49,29 +49,6 @@ void setup(){
   Servo1.attach(servoPin);
 //  lcd.begin(16, 2);
   //lcd.print("SANITISER DISPENSOR");
-  
-  //unsigned long StartTime = 0;
-  //millis();
-
-    //Serial.begin(115200);
-    Serial.print("Initializing pulse oximeter..");
- 
-    // Initialize the PulseOximeter instance
-    // Failures are generally due to an improper I2C wiring, missing power supply
-    // or wrong target chip
-    if (!pox.begin()) {
-        Serial.println("FAILED");
-        for(;;);
-    } else {
-        Serial.println("SUCCESS");
-    }
-     pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
- 
-    // Register a callback for the beat detection
-    pox.setOnBeatDetectedCallback(onBeatDetected);
-
-      MLX_Sensor.begin();  
-
 
  }
  
@@ -145,6 +122,8 @@ void loop(char type){
     //temperature
      if(dispensed == 1)
      {
+        
+         MLX_Sensor.begin(0x5A);  
         Serial.println("MLX90614 Sensor MicroLab");  
          Display_Temperature('A'); //Get Object temperature in Celsius
          Display_Temperature('B'); //Get Ambient temperature in Celsius
@@ -161,8 +140,22 @@ void loop(char type){
     
     if(temp_done == 1)
     {
+
+      
     while(pulse_oxi == 0)
     {
+      
+        if (!pox.begin(0x57)) {
+          Serial.println("FAILED");
+          for(;;);
+      } else {
+          Serial.println("SUCCESS");
+      }
+      pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
+ 
+      // Register a callback for the beat detection
+      pox.setOnBeatDetectedCallback(onBeatDetected);
+      
       pox.update();
     if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
 
@@ -248,5 +241,3 @@ void Display_Temperature(char type)
   }
 
 }
-
-  
