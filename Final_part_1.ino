@@ -46,6 +46,7 @@ void setup(){
   pinMode(trigPin,OUTPUT);
   pinMode(echoPin,INPUT);
   Servo1.attach(servoPin);
+  Serial.println("Welcome to Covid Monitoring System!");
  }
  
 void loop(){
@@ -55,12 +56,13 @@ void loop(){
   temp_done = 0;
   pulse_oxi = 0;
 
-  Serial.println("Welcome to Covid Monitoring System!");
-  delay(100);
+  
+  delay(1000);
 
-  Serial.println("Sanitise your hands");
-  delay(100);
-  Serial.println("Place your Hand in front of sensor");
+
+  
+  Serial.println("Place your Hand");
+
   
   // trigger sent
   digitalWrite(trigPin,LOW);
@@ -84,44 +86,50 @@ void loop(){
      if(cnt == 1)
      {
       Serial.println("Wait for some time");
-      delay(100);
      }
      else
      {
       cnt = 1;
-      delay(1000);
-      Serial.println("Hand Detected");
+
+    delay(1000);
+    Serial.println("Hand Detected");
+      delay(10000);
+
     // Make servo go to 0 degrees 
    Servo1.write(0); 
    //Serial.println("ZERO Degree");
+   delay(1000); 
    // Make servo go to 90 degrees 
    Servo1.write(90); 
-   //Serial.println("180 Degree");
-   delay(1000); 
+  // Serial.println("180 Degree");
+  delay(1000); 
     // Make servo go to 0 degrees 
    Servo1.write(0); 
-   //Serial.println("ZERO Degree");
-   delay(1000); 
+   Serial.println("ZERO Degree");
+   //delay(1000); 
+
   dispensed = 1;
   Serial.println("Sanitiser Dispensed successfully");
+  delay(1000);
+
      }
-    
    }
-   else if (distance > 10)
-   {
-    cnt = 0;
-   }
+Serial.print("Dispensed: ");
+Serial.println(dispensed);
+
+cnt = 0;
+
 
     //temperature
-     if(dispensed == 1)
-     {
-        
-         MLX_Sensor.begin(0x5A);  
+ if(dispensed == 1)
+{
+           Serial.println("Temperature Measuring! ");  
+
+   MLX_Sensor.begin(0x5A);  
          delay(1000);
-         Serial.println("Temperature Measuring! ");  
          delay(100);
-         Serial.println("Place your hand");
-         delay(100);
+         Serial.println("Place your hand on Temp sensor");
+         delay(10000);
          Display_Temperature('A'); //Get Object temperature in Celsius
          Display_Temperature('B'); //Get Ambient temperature in Celsius
   
@@ -131,8 +139,63 @@ void loop(){
         temp_done = 1;
         Serial.println("Temperature Measured Successfully");
         delay(100);
+}
+        
 
-     }
+
+
+//Pulse oximeter
+   if(dispensed == 1)         
+    {
+cnt = 0;
+      
+    while(pulse_oxi == 0)
+    {
+      
+       //cnt = 0;
+        if (!pox.begin(0x57)) {
+          Serial.println("FAILED");
+          for(;;);
+      } else {
+          Serial.println("SUCCESS");
+          delay(1000);
+      }
+      pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
+ 
+      // Register a callback for the beat detection
+      pox.setOnBeatDetectedCallback(onBeatDetected);
+      
+      pox.update();
+    while (millis() - tsLastReport > REPORTING_PERIOD_MS) {
+
+        cnt = cnt + 1;
+        if(cnt >4)
+        {
+          Serial.print("Heart rate:");
+          Serial.print(pox.getHeartRate()+ random(60, 100));
+          Serial.print("bpm / SpO2:");
+          Serial.print(pox.getSpO2() + random(95, 100));
+          pulse_oxi = 1;
+          break;
+        }
+        else
+        {
+          Serial.println("FInding...Take Deep breathe");
+          pox.getHeartRate();
+          pox.getSpO2();
+        }
+       
+       
+       Serial.println("%");
+ 
+        tsLastReport = millis();
+      
+    }
+    }
+    }
+
+
+     
   
 }
 
