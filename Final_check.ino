@@ -8,7 +8,7 @@
 #define echoPin 8
 #define trigPin 9
 //pulse oximeter
-#define REPORTING_PERIOD_MS     1000
+#define REPORTING_PERIOD_MS     30000  
 
 //# Define variables
 //temp sensor
@@ -26,6 +26,10 @@ unsigned long temp_done = 0;
 //pulse oxi
 uint32_t tsLastReport = 0;
 unsigned long cnt_pulse = 0;
+int i_mlx = 0;
+int i=0;
+float temperature, temp;
+float sum;
 
 
 //Create objects
@@ -126,18 +130,30 @@ cnt = 0;
 
    MLX_Sensor.begin(0x5A);  
          delay(1000);
-         //delay(100);
          Serial.println("Place your hand on Temp sensor");
          delay(5000);
-         Display_Temperature('A'); //Get Object temperature in Celsius
-         Display_Temperature('B'); //Get Ambient temperature in Celsius
+
+     while (i_mlx < 30) {
+    temp= MLX_Sensor.readObjectTempC();
+    sum += temp;
+    i_mlx++;
+    delay(1);
+  }
+  temperature = sum/30.0;
+  if(temperature < 35)
+  {
+    //Serial.println("Entered");
+    temperature = temperature + 2;
+  }
+ 
+  sum = 0;
+  i_mlx = 0;
+  Serial.println(temperature);
+  delay(2000);
+  temp_done = 1;
+  Serial.println("Temperature Measured Successfully");
+  delay(100);
   
-        Serial.println("########");
-      
-        delay(2000);
-        temp_done = 1;
-        Serial.println("Temperature Measured Successfully");
-        delay(100);
 }
 
 
@@ -145,12 +161,7 @@ cnt = 0;
    if(dispensed == 1)         
     {
 cnt = 0;
-      
-    while(pulse_oxi == 0)
-    {
-      
-       //cnt = 0;
-        if (!pox.begin(0x57)) {
+       if (!pox.begin(0x57)) {
           Serial.println("FAILED");
           for(;;);
       } else {
@@ -161,26 +172,21 @@ cnt = 0;
  
       // Register a callback for the beat detection
       pox.setOnBeatDetectedCallback(onBeatDetected);
-      
-      pox.update();
-    while (millis() - tsLastReport > REPORTING_PERIOD_MS) {
+   pox.update();
+      while(1)
+      {
 
-        cnt = cnt + 1;
-        if(cnt >4)
-        {
+      // pox.update();
+    if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
+
+    
           Serial.print("Heart rate:");
-          Serial.print(pox.getHeartRate()+ random(60, 100));
+          Serial.print(pox.getHeartRate() );
           Serial.print("bpm / SpO2:");
-          Serial.println(pox.getSpO2() + random(95, 100));
+          Serial.println(pox.getSpO2() );
           pulse_oxi = 1;
           break;
-        }
-        else
-        {
-          Serial.println("FInding...Take Deep breathe");
-          pox.getHeartRate();
-          pox.getSpO2();
-        }
+       
        
        
        Serial.println("%");
@@ -188,11 +194,18 @@ cnt = 0;
         tsLastReport = millis();
       
     }
-    }
+        
+      }
+   
+   
+      }
+    
+    
     }
     
+    
         
-}
+
 
 
 float Get_Temperature_Sample(char type)
