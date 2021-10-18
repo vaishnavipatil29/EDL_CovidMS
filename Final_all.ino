@@ -114,10 +114,10 @@ if (distance < 10)
     else
      {
       cnt = 1;
-      delay(1000);
+      //delay(1000);
       lcd.setCursor(0, 1);
       lcd.print("Hand    Detected");
-      delay(1000);
+      delay(500);
       // Make servo go to 0 degrees 
       Servo1.write(0); 
       //Serial.println("ZERO Degree");
@@ -132,7 +132,7 @@ if (distance < 10)
       //delay(1000);
       dispensed = 1;
       lcd.setCursor(0, 1);
-      lcd.print("Sanitiser       ");
+      lcd.print("Dispensed       ");
       delay(6000);
       //lcd.setCursor(0, 1);
       //lcd.print("Dispensed:      ");
@@ -159,7 +159,7 @@ cnt = 0;
          
   lcd.setCursor(0, 1);
   lcd.print("hand on tempsens");
-  delay(1000);
+  delay(5000);
   while (i_mlx < 30) 
   {
     temp= MLX_Sensor.readObjectTempC();
@@ -206,6 +206,7 @@ cnt = 0;
     pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
     // Register a callback for the beat detection
     pox.setOnBeatDetectedCallback(onBeatDetected);
+    p = 0;
     tsLastReport = 0;
     //Serial.print("Heart rate:");
     
