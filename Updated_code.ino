@@ -27,7 +27,7 @@ unsigned long temp_done = 0;
 uint32_t tsLastReport = 0;
 unsigned long cnt_pulse = 0;
 int i_mlx = 0;
-int i=0;
+int i,p=0;
 float temperature, temp;
 float sum;
 
@@ -51,7 +51,11 @@ void onBeatDetected()
     
     lcd.setCursor(0, 1);
     Serial.println("Beat!");
-        lcd.print("Beat!");
+    lcd.print("Beatpulseoxim ");
+    p++;
+    //lcd.setCursor(0, 1);
+    lcd.print(p);
+    lcd.print('s');
 
 }
 
@@ -65,7 +69,7 @@ void setup(){
   
   lcd.setCursor(0, 1);
   Serial.print("Welcome to Covid Monitoring System!");
-  lcd.print("Welcome to Covid Monitoring System!");
+  lcd.print("Welcome to CovMS");
  }
  
 void loop(){
@@ -81,8 +85,8 @@ void loop(){
 
   
   lcd.setCursor(0, 1);
-  lcd.print("Place your Hand");
-
+  lcd.print("Place your Hand  ");
+  delay(1000);
   
   // trigger sent
   digitalWrite(trigPin,LOW);
@@ -96,62 +100,52 @@ void loop(){
   distance=(duration*0.034/2);
   
   lcd.setCursor(0, 1);
-  lcd.print("Distance : ");
-  
-
+  lcd.println("Distance: ");
   lcd.print(distance);
-  
-//  lcd.setCursor(0, 3);
-  lcd.print(" cm ");
+  lcd.print("cm ");
   delay(1000);
 
-    //if distance is less than 10cm 
-   if (distance < 10)
-   {
-    
-     if(cnt == 1)
-     {
-      
+//if distance is less than 10cm 
+if (distance < 10)
+{
+    if(cnt == 1)
+    {
       lcd.setCursor(0, 1);
-      lcd.print("Wait for some time");
-     }
-     else
+      lcd.print("Wait    sometime");
+    }
+    else
      {
       cnt = 1;
-
-    delay(1000);
-    
-    lcd.setCursor(0, 1);
-    lcd.print("Hand Detected");
-      delay(1000);
-
-    // Make servo go to 0 degrees 
-   Servo1.write(0); 
-   //Serial.println("ZERO Degree");
-   delay(1000); 
-   // Make servo go to 90 degrees 
-   Servo1.write(90); 
-  // Serial.println("180 Degree");
-  delay(1000); 
-    // Make servo go to 0 degrees 
-   Servo1.write(0); 
-   //Serial.println("ZERO Degree");
-   //delay(1000); 
-
-  dispensed = 1;
-  
-  lcd.setCursor(0, 1);
-  lcd.print("Sanitiser Dispensed successfully");
-  delay(1000);
-
+      //delay(1000);
+      lcd.setCursor(0, 1);
+      lcd.print("Hand    Detected");
+      delay(500);
+      // Make servo go to 0 degrees 
+      Servo1.write(0); 
+      //Serial.println("ZERO Degree");
+      delay(1000); 
+      // Make servo go to 90 degrees 
+      Servo1.write(90); 
+      // Serial.println("180 Degree");
+      delay(1000); 
+      // Make servo go to 0 degrees 
+      Servo1.write(0); 
+      //Serial.println("ZERO Degree");
+      //delay(1000);
+      dispensed = 1;
+      lcd.setCursor(0, 1);
+      lcd.print("Dispensed       ");
+      delay(2000);
+      //lcd.setCursor(0, 1);
+      //lcd.print("Dispensed:      ");
+     
      }
-   }
+}
 
-lcd.setCursor(0, 1);
-lcd.print("Dispensed: ");
+
 
 // lcd.setCursor(0, 2);
-lcd.println(dispensed);
+//lcd.println(dispensed);
 cnt = 0;
 
 
@@ -160,16 +154,16 @@ cnt = 0;
 {
            
   lcd.setCursor(0, 1);
-           lcd.print("Temperature Measuring! ");  
+  lcd.print("Temperature in°C");  
 
    MLX_Sensor.begin(0x5A);  
-         delay(1000);
+   delay(1000);
          
   lcd.setCursor(0, 1);
-         lcd.print("Place your hand on Temp sensor");
-         delay(5000);
-
-     while (i_mlx < 30) {
+  lcd.print("hand on tempsens");
+  delay(5000);
+  while (i_mlx < 30) 
+  {
     temp= MLX_Sensor.readObjectTempC();
     sum += temp;
     i_mlx++;
@@ -186,75 +180,61 @@ cnt = 0;
   i_mlx = 0;
   
   lcd.setCursor(0, 1);
+  lcd.print("Temperature:");
   lcd.print(temperature);
-  delay(2000);
+  lcd.print("°C");  
+  delay(3000);
   temp_done = 1;
-  
   lcd.setCursor(0, 1);
-  lcd.print("Temperature Measured Successfully");
+  lcd.print("Tempe  completed");
   delay(100);
   
-}
-
-
-//Pulse oximeter
-   if(dispensed == 1)         
+  if (!pox.begin(0x57)) 
     {
- if (!pox.begin(0x57)) 
-    {
-      
-  lcd.setCursor(0, 1);
-      lcd.print("FAILED");
+      Serial.println("FAILED");
       for(;;);
     } 
     else 
     {
-      
-  //lcd.setCursor(0, 1);
-      lcd.print("SUCCESS");
+      Serial.println("SUCCESS");
     }
+    lcd.setCursor(0, 1);
+    lcd.print("Pulse Oximeter  ");
+    lcd.setCursor(0, 1);
+    lcd.print("Place hand 30sec");
+    
+    lcd.setCursor(0, 1);
+    lcd.print("take deep breath");
     pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
     // Register a callback for the beat detection
     pox.setOnBeatDetectedCallback(onBeatDetected);
+    p = 0;
     tsLastReport = 0;
     //Serial.print("Heart rate:");
     
-  //lcd.setCursor(0, 1);
-    lcd.print(millis());
+    Serial.println(millis());
     tsLastReport = millis();
     while (millis() - tsLastReport < REPORTING_PERIOD_MS) 
     {
       pox.update();
     }
-    //if(millis() - tsLastReport > REPORTING_PERIOD_MS)
-      //{
-      Serial.print("Heart rate:");
-    Serial.print(pox.getHeartRate());
-    Serial.print("bpm / SpO2:");
-    Serial.print(pox.getSpO2());
-    Serial.println("%");
-  lcd.setCursor(0, 0);
-    lcd.print("Heart rate:");
-    
-  lcd.setCursor(0, 1);
+    lcd.setCursor(0, 1);
+    lcd.print("HeartRate: ");
     lcd.print(pox.getHeartRate());
-    
-  lcd.setCursor(0, 0);
-    lcd.print("bpm / SpO2:");
-    
-  lcd.setCursor(0, 1);
+    lcd.print("bpm");
+    delay(2000);
+    lcd.setCursor(0, 1);
+    lcd.print("Spo2 oxygen  ");
     lcd.print(pox.getSpO2());
-    
-  //lcd.setCursor(0, 3);
-    //lcd.println("%");
-    
-  //lcd.setCursor(0, 1);
-   // lcd.print(millis());
+    lcd.println("%");
+    delay(5000);
+    Serial.println(millis());
     //}
-    }
-    
-    
-    }
+}
+}
+
+
+
     
     
         
