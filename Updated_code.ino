@@ -30,6 +30,9 @@ int i_mlx = 0;
 int i,p=0;
 float temperature, temp;
 float sum;
+String inputString="";
+char junk;
+
 
 #include <LiquidCrystal.h>
 
@@ -50,7 +53,7 @@ void onBeatDetected()
 {
     
     lcd.setCursor(0, 1);
-    Serial.println("Beat!");
+    //.Serial.println("Beat!");
     lcd.print("Beatpulseoxim ");
     p++;
     //lcd.setCursor(0, 1);
@@ -62,13 +65,13 @@ void onBeatDetected()
 
 void setup(){
   
-  Serial.begin(115200);
+  Serial.begin(9600);
   pinMode(trigPin,OUTPUT);
   pinMode(echoPin,INPUT);
   Servo1.attach(servoPin);
   
   lcd.setCursor(0, 1);
-  Serial.print("Welcome to Covid Monitoring System!");
+  Serial.println("Welcome to Covid Monitoring System!");
   lcd.print("Welcome to CovMS");
  }
  
@@ -79,11 +82,8 @@ void loop(){
   temp_done = 0;
   pulse_oxi = 0;
 
-  
   delay(1000);
 
-
-  
   lcd.setCursor(0, 1);
   lcd.print("Place your Hand  ");
   delay(1000);
@@ -119,6 +119,7 @@ if (distance < 10)
       //delay(1000);
       lcd.setCursor(0, 1);
       lcd.print("Hand    Detected");
+      Serial.println("Hand    Detected");
       delay(500);
       // Make servo go to 0 degrees 
       Servo1.write(0); 
@@ -135,11 +136,13 @@ if (distance < 10)
       dispensed = 1;
       lcd.setCursor(0, 1);
       lcd.print("Dispensed       ");
+      Serial.println("Sanitiser Dispensed");
       delay(2000);
       //lcd.setCursor(0, 1);
       //lcd.print("Dispensed:      ");
      
      }
+    
 }
 
 
@@ -154,7 +157,8 @@ cnt = 0;
 {
            
   lcd.setCursor(0, 1);
-  lcd.print("Temperature in°C");  
+  lcd.print("Temperature in°C"); 
+  Serial.println("Temperature in°C"); 
 
    MLX_Sensor.begin(0x5A);  
    delay(1000);
@@ -181,12 +185,20 @@ cnt = 0;
   
   lcd.setCursor(0, 1);
   lcd.print("Temperature:");
+  Serial.println("Temperature: "); 
+
   lcd.print(temperature);
+  Serial.println(temperature); 
+  if(temperature>38)
+  {
+    
+  }
+
   lcd.print("°C");  
   delay(3000);
   temp_done = 1;
   lcd.setCursor(0, 1);
-  lcd.print("Tempe  completed");
+  lcd.print("Temp  completed");
   delay(100);
   
   if (!pox.begin(0x57)) 
@@ -200,6 +212,7 @@ cnt = 0;
     }
     lcd.setCursor(0, 1);
     lcd.print("Pulse Oximeter  ");
+    Serial.println("Pulse Oximeter    "); 
     lcd.setCursor(0, 1);
     lcd.print("Place hand 30sec");
     
@@ -212,7 +225,7 @@ cnt = 0;
     tsLastReport = 0;
     //Serial.print("Heart rate:");
     
-    Serial.println(millis());
+    //Serial.println(millis());
     tsLastReport = millis();
     while (millis() - tsLastReport < REPORTING_PERIOD_MS) 
     {
@@ -220,15 +233,24 @@ cnt = 0;
     }
     lcd.setCursor(0, 1);
     lcd.print("HeartRate: ");
+        Serial.println("HeartRate:"); 
+
     lcd.print(pox.getHeartRate());
+        Serial.println(pox.getHeartRate()); 
+
     lcd.print("bpm");
     delay(2000);
     lcd.setCursor(0, 1);
     lcd.print("Spo2 oxygen  ");
+        Serial.println("Spo2 oxygen"); 
+
     lcd.print(pox.getSpO2());
+        Serial.print(pox.getSpO2()); 
+
     lcd.println("%");
+    Serial.println("%"); 
     delay(5000);
-    Serial.println(millis());
+    //Serial.println(millis());
     //}
 }
 }
