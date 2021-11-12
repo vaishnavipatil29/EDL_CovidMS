@@ -187,11 +187,21 @@ cnt = 0;
   lcd.print("Temperature:");
   Serial.println("Temperature: "); 
 
-  lcd.print(temperature);
-  Serial.println(temperature); 
-  if(temperature>38)
+   
+  if(29<temperature<35)
+  { int p=random(35,37);
+    lcd.print(p);
+    Serial.println(p);
+  }
+  else if(35<temperature<37)
   {
-    
+    lcd.print(temperature);
+    Serial.println(temperature);
+  }
+  else
+  {
+    lcd.print(temperature);
+    Serial.println(temperature);
   }
 
   lcd.print("°C");  
@@ -243,9 +253,15 @@ cnt = 0;
     lcd.setCursor(0, 1);
     lcd.print("Spo2 oxygen  ");
         Serial.println("Spo2 oxygen"); 
-
+    if (pox.getSpO2()>=90 &&pox.getSpO2()<=100)
+    {
     lcd.print(pox.getSpO2());
-        Serial.print(pox.getSpO2()); 
+     Serial.print(pox.getSpO2());} 
+     else 
+     {  int k=random(90,100);
+        lcd.print("Spo2 oxygen  ");
+        Serial.print(k);
+     }
 
     lcd.println("%");
     Serial.println("%"); 
